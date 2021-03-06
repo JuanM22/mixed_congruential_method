@@ -1,4 +1,5 @@
 from model.mixedCongruentialMethod import MixedCongruentialMethod
+import model.kolmogorovSmirnov as kolmogorovSmirnov
 
 class Control:
     
@@ -8,5 +9,7 @@ class Control:
     def runProgram(self):
         mixedCongruentialMethod = MixedCongruentialMethod(4,5,7,8)
         mixedCongruentialMethod.generateNumbers()
-        print(mixedCongruentialMethod.intValues)
-        print(mixedCongruentialMethod.doubleValues)
+        return kolmogorovSmirnov.calculate(mixedCongruentialMethod.doubleValues)
+        
+
+    
