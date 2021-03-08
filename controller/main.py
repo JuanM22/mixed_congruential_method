@@ -6,10 +6,9 @@ class Control:
     def __init__(self):
         self.run = None
 
-    def runProgram(self):
-        mixedCongruentialMethod = MixedCongruentialMethod(4,5,7,8)
+    def getRandomNumbers(self, x0, a, c, m):
+        mixedCongruentialMethod = MixedCongruentialMethod(x0,a,c,m)
         mixedCongruentialMethod.generateNumbers()
-        return kolmogorovSmirnov.calculate(mixedCongruentialMethod.doubleValues)
+        return mixedCongruentialMethod.doubleValues
+        # return kolmogorovSmirnov.calculate()
         
-
-    

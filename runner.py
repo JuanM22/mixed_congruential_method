@@ -1,4 +1,4 @@
-from controller.main import Control
+import view.kolmogorovSmirnovGUI as interface
 
 class Run:
     
@@ -6,8 +6,7 @@ class Run:
         self.run = None
     
     def main(self):
-        control = Control()
-        control.runProgram()
+        interface.runProgram()
 
 r = Run()
 r.main()

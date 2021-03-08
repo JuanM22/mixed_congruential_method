@@ -12,6 +12,6 @@ class MixedCongruentialMethod:
     def generateNumbers(self):
         for _ in range(0,self.m):
             number = ((self.a * self.Xn) + self.c) % self.m
-            self.intValues.append(number)
-            self.doubleValues.append(number/self.m)
+            self.intValues.append(number)  
+            self.doubleValues.append("{:.4f}".format(round(number/self.m, 4)))
             self.Xn = number
