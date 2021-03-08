@@ -1,3 +1,5 @@
+import math
+
 class MixedCongruentialMethod:
 
     def __init__(self, X0, a, c, m):
@@ -13,5 +15,5 @@ class MixedCongruentialMethod:
         for _ in range(0,self.m):
             number = ((self.a * self.Xn) + self.c) % self.m
             self.intValues.append(number)  
-            self.doubleValues.append("{:.4f}".format(round(number/self.m, 4)))
+            self.doubleValues.append(round((number/self.m), 4))
             self.Xn = number
