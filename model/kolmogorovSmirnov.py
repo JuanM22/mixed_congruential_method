@@ -15,7 +15,7 @@ def calculate(arr):
     __expectedFrequencyAcumulated(table)  # Quinta columna llena
     __expectedProbabilityAcumulated(table, len(arr))  # Sexta columna llena
     __difference(table)  # Séptima columna llena
-    print(table)
+    return table
 
 def __createEmptyTable(rows, columns):
     return np.zeros((rows, columns))
@@ -36,7 +36,7 @@ def __calculateEarnedFrequencyAcumulated(table):
 
 def __probabilityEarnedAcumulated(table, n):
     for i in range(0, np.shape(table)[0]):
-        table[i][2] =  "{:.4f}".format(round(table[i][1] / n, 4))  
+        table[i][2] =  round(table[i][1] / n, 4)  
 
 
 def __expectedFrequency(table, n, intervals):
@@ -52,7 +52,7 @@ def __expectedFrequencyAcumulated(table):
 
 def __expectedProbabilityAcumulated(table, n):
     for i in range(0, np.shape(table)[0]):
-        table[i][5] = "{:.4f}".format(round(table[i][4] / n, 4))  
+        table[i][5] = round(table[i][4] / n, 4) 
 
 
 def __difference(table):

@@ -10,5 +10,6 @@ class Control:
         mixedCongruentialMethod = MixedCongruentialMethod(x0,a,c,m)
         mixedCongruentialMethod.generateNumbers()
         return mixedCongruentialMethod.doubleValues
-        # return kolmogorovSmirnov.calculate()
         
+    def getKolmogorovSmirnovRes(self, values):
+        return kolmogorovSmirnov.calculate(values)

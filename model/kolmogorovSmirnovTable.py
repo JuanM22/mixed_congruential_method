@@ -61,7 +61,7 @@ def getTableValue(alpha, n):
     arr = table(n)
     row = __getRowValue(arr, n)
     col = __getColValue(arr, alpha)
-    return "{:.5f}".format(round(arr[row][col], 5))
+    return round(arr[row][col], 5)
 
 def __getRowValue(arr, n):
     rowLength = np.shape(arr)[0]

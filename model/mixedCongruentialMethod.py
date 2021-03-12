@@ -1,3 +1,5 @@
+import math
+
 class MixedCongruentialMethod:
 
     def __init__(self, X0, a, c, m):
