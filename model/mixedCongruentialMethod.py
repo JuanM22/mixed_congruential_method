@@ -23,23 +23,8 @@ class MixedCongruentialMethod:
                     periodFounded = True
             self.doubleValues.append(number/self.m)
             self.Xn = number
+        self.doubleValues.pop()
 
     def roundNumbers(self):
         for i, number in enumerate(self.doubleValues):
             self.doubleValues[i] = round(number,4)
-
-
-# mixedCongruentialMethod = MixedCongruentialMethod(X0, a, c, m)
-# mixedCongruentialMethod.generateNumbers()
-# mixedCongruentialMethod.roundNumbers()
-# print(mixedCongruentialMethod.doubleValues)
-# print(mixedCongruentialMethod.period)
-# print('')
-
-# start = mixedCongruentialMethod.period[0]
-# end = mixedCongruentialMethod.period[1]
-
-# print(mixedCongruentialMethod.period)
-# print('Periodo -> ', (end - start))
-# for i in range(start, end):
-#     print(mixedCongruentialMethod.doubleValues[i])
