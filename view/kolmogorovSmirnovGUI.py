@@ -1,16 +1,17 @@
-import wx
-import math
+import wx, math
 import wx.grid as grid
 import wx.lib
 import numpy as np
-import pygame
 from controller.main import Control
 
-pygame.display.init()
-resolution = pygame.display.Info()
+# pygame.display.init()
+# resolution = pygame.display.Info()
 
-width = resolution.current_w
-height = resolution.current_h - 50
+# width = resolution.current_w
+# height = resolution.current_h - 50
+
+width = 1366
+height = 760
 
 class AlphaComboBox(wx.ComboBox):
     def __init__(self, parent):
@@ -22,6 +23,7 @@ class AlphaComboBox(wx.ComboBox):
         wx.ComboBox.__init__(self, parent , choices = choices, size = size, pos = position)
 
         self.SetSelection(0)
+        self.SetEditable(False)
 
 class Table(grid.Grid):
     def __init__(self, parent, rows, cols, rowsOrCols, tableHeigth):
@@ -35,7 +37,7 @@ class Table(grid.Grid):
         self.SetBackgroundColour((255, 0, 0))
 
         self.SetDefaultCellAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
-        self.ShowScrollbars(wx.SHOW_SB_NEVER, wx.SHOW_SB_NEVER)
+        self.ShowScrollbars(wx.SHOW_SB_NEVER, wx.SHOW_SB_DEFAULT)
 
         if(rowsOrCols == 'rows'):
             self.HideRowLabels()
@@ -47,23 +49,26 @@ class Table(grid.Grid):
         for i in range(0, cols):
             self.SetColSize(i, colSize)
 
+        self.DisableDragColSize()
+        self.DisableDragRowSize()
+
 
 class MainView(wx.Frame):
-    def __init__(self):
-        wx.Frame.__init__(self, None, title='Congruential Mixed Method | Kolmogorov-Smirnov Test', name="riTable",
-                          pos=wx.Point(0, 0), size=wx.Size(width, height))
+    def __init__(self, parent, title):
+
+        wx.Frame.__init__(self, parent, title = title, name="riTable", pos=wx.Point(0, 0), size=wx.Size(width, height))
 
         self.mainPanel = wx.Panel(self)
         self.mainPanel.SetBackgroundColour((126,12,45))
 
-        size = [(width * 67)/100, (height * 25) / 100]
+        size = [(width * 67)/100, (height * 26.5) / 100]
         position = [(width * 30)/100, (height * 5) / 100]
 
         ##############################################################
         self.riPanel = wx.Panel(self.mainPanel, pos=position, size=size)
         self.riPanel.Hide()
         ##########################
-        self.btnSend = wx.Button(self.riPanel, -1, label="Aplicar prueba de Kolmogorov-Smirnov", pos=[(8 * 82) + 4, (height* 12) / 100])
+        self.kolmogorovBtn = wx.Button(self.riPanel, -1, label="Aplicar prueba de Kolmogorov-Smirnov", pos=[(8 * 82) + 4, (height* 12) / 100])
         ##########################
         self.alpha = AlphaComboBox(self.riPanel)
         ##########################
@@ -154,18 +159,27 @@ class MainView(wx.Frame):
         xPos = 100
         yPos = 52
         self.tInput = wx.TextCtrl(dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
+        self.tInput.SetEditable(False)
 
-        xPos, yPos = 88, 80
 
-        btnSend = wx.Button(dataPanel, -1, label="Generar números aleatorios", pos=[xPos, yPos])
-        btnSend.Bind(wx.EVT_BUTTON, self.generateRandomNumbers)
+        xPos, yPos = 125, 80
 
-        xPos, yPos = 0, 80
-        btnSend = wx.Button(dataPanel, -1, label="Nuevo", pos=[xPos, yPos])
-        btnSend.Bind(wx.EVT_BUTTON, self.__deleteWidgets)
+        self.numberGeneratorBtn = wx.Button(dataPanel, -1, label="Generar números aleatorios", pos=[xPos, yPos])
+        self.numberGeneratorBtn.Bind(wx.EVT_BUTTON, self.generateRandomNumbers)
+        self.numberGeneratorBtn.Disable()
+
+        xPos, yPos = 35, 80
+        self.newBtn = wx.Button(dataPanel, -1, label="Nuevo", pos=[xPos, yPos])
+        self.newBtn.Bind(wx.EVT_BUTTON, self.__deleteWidgets)
+
+        self.__inputsEditable('disabled')
 
 
     def generateRandomNumbers(self, e):
+        self.__inputsEditable('disabled')
+        self.numberGeneratorBtn.Disable()
+        self.newBtn.Enable()
+
         x0 = int(self.x0Input.GetLineText(0))
         a = int(self.aInput.GetLineText(0))
         c = int(self.cInput.GetLineText(0))
@@ -179,7 +193,6 @@ class MainView(wx.Frame):
         ################################################
         rows = math.ceil(len(values) / 8)
         table = Table(self.riPanel, rows, 8, "columns", 29)
-        self.__setCellsReadonly(table, rows)
 
         row, col = 0, 0
         for i in range(0, len(values)):
@@ -193,20 +206,57 @@ class MainView(wx.Frame):
             else:
                 col += 1
 
-        self.btnSend.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values))
+        self.kolmogorovBtn.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values))
+
+        self.__setCellsReadonly(table, rows, 8)
 
         self.riPanel.Validate()
         self.riPanel.Update()
         self.riPanel.Show()
 
     def __deleteWidgets(self, e):
-        self.riPanel.Hide()
-        self.kolmogorovPanel.Hide()
-        self.conclusionPanel.Hide()
-        self.alpha.SetSelection(0)
+        self.alpha.Enable()
+        self.numberGeneratorBtn.Enable()
+        self.kolmogorovBtn.Enable()
+        self.newBtn.Disable()
+        self.__inputsEditable('enabled')
+
+        if(len(self.kolmogorovPanel.GetChildren()) > 0):
+            self.kolmogorovPanel.GetChildren()[0].Destroy()
+            self.kolmogorovPanel.Hide()
+
+        if(len(self.riPanel.GetChildren()) > 4):
+            self.riPanel.GetChildren()[4].Destroy()
+            self.riPanel.Hide()
+            self.conclusionPanel.Hide()
+            self.alpha.SetSelection(0)
+            #####################################
+            self.__cleanDataInputs()
+
+    def __cleanDataInputs(self):
+        self.x0Input.SetValue('')
+        self.aInput.SetValue('')
+        self.cInput.SetValue('')
+        self.tInput.SetValue('')
+        self.mInput.SetValue('')
+
+    def __inputsEditable(self, option):
+        if(option == 'disabled'):
+            self.x0Input.SetEditable(False)
+            self.aInput.SetEditable(False)
+            self.cInput.SetEditable(False)
+            self.mInput.SetEditable(False)
+        else:
+            self.x0Input.SetEditable(True)
+            self.aInput.SetEditable(True)
+            self.cInput.SetEditable(True)
+            self.mInput.SetEditable(True)
+    
 
     def applyKolmogorovSmirnov(self, e, values):
         if(self.alpha.GetSelection()> 0):
+            self.alpha.Disable()
+            self.kolmogorovBtn.Disable()
             self.comboSelectionAlert.Hide()
 
             control = Control()
@@ -214,7 +264,6 @@ class MainView(wx.Frame):
 
             table = Table(self.kolmogorovPanel, 10, 9, "", 33.5)
             table.SetColLabelSize(50)
-            self.__setCellsReadonly(table, np.shape(matrix)[0])
             ####################### HEADER ###########################
             table.SetColLabelValue(0, 'Rango o intervalo')
             table.SetColLabelValue(1, 'Significa')
@@ -274,25 +323,25 @@ class MainView(wx.Frame):
                 conclusion += ' números del conjunto ri siguen una distribución uniforme'
 
             self.conclusionText.SetValue(conclusion)
+            self.conclusionPanel.Validate()
+            self.conclusionPanel.Update()
             self.conclusionPanel.Show()
             ####################################################
-
+            self.__setCellsReadonly(table, np.shape(matrix)[0], np.shape(matrix)[1] + 2)
             self.kolmogorovPanel.Validate()
             self.kolmogorovPanel.Update()
             self.kolmogorovPanel.Show()
     
         else:
             self.comboSelectionAlert.Show()
-        
 
-    def __setCellsReadonly(self, table, rowsLength):
-        attr = wx.grid.GridCellAttr()
-        attr.SetReadOnly(True)
-        for i in range(0, rowsLength):
-            table.SetRowAttr(i, attr)
+    def __setCellsReadonly(self, table, rows, cols):
+        for i in range(0, rows):
+            for j in range(0, cols):
+                table.SetReadOnly(i,j, True)
 
 
 def runProgram():
     app = wx.App()
-    frame = MainView().Show()
+    frame = MainView(None, 'Congruential Mixed Method | Kolmogorov-Smirnov Test').Show()
     app.MainLoop()
