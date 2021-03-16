@@ -1,22 +1,28 @@
-import wx, math
+import wx, math, pygame
 import wx.grid as grid
 import wx.lib
 import numpy as np
 from controller.main import Control
 
-# pygame.display.init()
-# resolution = pygame.display.Info()
+pygame.display.init()
+resolution = pygame.display.Info()
 
-# width = resolution.current_w
-# height = resolution.current_h - 50
+width = resolution.current_w
+height = resolution.current_h - 50
 
-width = 1366
-height = 760
+mainBG = [3,155,255]
+panelBackGround = [139, 148, 154]
+tableLabelsBG = [0,0,204]
+white = [255,255,255]
+red = [255,0,0]
+darkGray = [64,64,64]
+black = [0,0,0]
+tCellBG = [51,153,255]
 
 class AlphaComboBox(wx.ComboBox):
     def __init__(self, parent):
 
-        position = [(width* 54)/100, (height*2.5)/100]
+        position = [(width* 53)/100, (height*2.5)/100]
         size = [(width*8)/100, (height*5)/100]
         choices = ['--Seleccione--','0.20', '0.10', '0.05', '0.02', '0.01', '0.005', '0.002', '0.001']
 
@@ -34,10 +40,13 @@ class Table(grid.Grid):
             (cols) * (colSize + 12), (height * tableHeigth) / 100), pos=wx.Point(0, 0))
 
         self.CreateGrid(rows, cols)
-        self.SetBackgroundColour((255, 0, 0))
 
         self.SetDefaultCellAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
         self.ShowScrollbars(wx.SHOW_SB_NEVER, wx.SHOW_SB_DEFAULT)
+        self.SetLabelBackgroundColour(tableLabelsBG)
+        self.SetLabelTextColour(white)
+        self.SetDefaultCellBackgroundColour(darkGray)
+        self.SetDefaultCellTextColour(white)
 
         if(rowsOrCols == 'rows'):
             self.HideRowLabels()
@@ -52,169 +61,197 @@ class Table(grid.Grid):
         self.DisableDragColSize()
         self.DisableDragRowSize()
 
-
 class MainView(wx.Frame):
+
     def __init__(self, parent, title):
 
-        wx.Frame.__init__(self, parent, title = title, name="riTable", pos=wx.Point(0, 0), size=wx.Size(width, height))
+        wx.Frame.__init__(self, parent, title = title, name="riTable", pos=wx.Point(0, 0), size=wx.Size(width, height), style = wx.CAPTION)
 
         self.mainPanel = wx.Panel(self)
-        self.mainPanel.SetBackgroundColour((126,12,45))
+        self.mainPanel.SetBackgroundColour(mainBG)
 
-        size = [(width * 67)/100, (height * 26.5) / 100]
-        position = [(width * 30)/100, (height * 5) / 100]
+        #### Data Panel ####
+        self.size = [(width * 25)/100, (height * 26.5) / 100]
+        self.position = [(width * 3)/100, (height * 5) / 100]
+        self.__createDataPanel()
+        ###############################################################################
 
-        ##############################################################
-        self.riPanel = wx.Panel(self.mainPanel, pos=position, size=size)
-        self.riPanel.Hide()
-        ##########################
-        self.kolmogorovBtn = wx.Button(self.riPanel, -1, label="Aplicar prueba de Kolmogorov-Smirnov", pos=[(8 * 82) + 4, (height* 12) / 100])
-        ##########################
+        #### Ri Panel ####
+        self.size = [(width * 67)/100, (height * 26.5) / 100]
+        self.position = [(width * 28.5)/100, (height * 5) / 100]
+        self.__createRiPanel()
+        ###############################################################################
+        
+        #### Kolmogorov Panel ####
+        self.size = [(width * 91)/100, (height * 34) / 100]
+        self.position = [(width * 3.8)/100, (height * 35) / 100]
+        self.__createKolmogorovPanel()
+        ###############################################################################
+
+        ##### Alpha ComboBox ####
         self.alpha = AlphaComboBox(self.riPanel)
-        ##########################
-        position = [(width * 50)/100, (height * 3) / 100]
-        self.alphaLabel = wx.StaticText(self.riPanel, -1, "ALPHA: ", pos = position)
-        self.alphaLabel.SetForegroundColour((255, 255, 255))
-        ##########################
-        position = [(width * 50)/100, 0]
-        self.comboSelectionAlert = wx.StaticText(self.riPanel, -1, "Seleccione un valor para alpha", pos = position)
-        self.comboSelectionAlert.SetForegroundColour((255, 0, 0))
+        self.position = [(width * 48.5)/100, (height * 3) / 100]
+        self.alphaLabel = wx.StaticText(self.riPanel, -1, "ALPHA: ", pos = self.position)
+        self.alphaLabel.SetForegroundColour(white)
+        self.position = [(width * 50)/100, 0]
+        self.comboSelectionAlert = wx.StaticText(self.riPanel, -1, "Seleccione un valor para alpha", pos = self.position)
+        self.comboSelectionAlert.SetForegroundColour(red)
         self.comboSelectionAlert.Hide()
-        ##########################
-        ##############################################################
-        size = [(width * 91)/100, (height * 35) / 100]
-        position = [(width * 3.5)/100, (height * 35) / 100]
-
-        self.kolmogorovPanel = wx.Panel(self.mainPanel, pos=position, size=size)
-        self.kolmogorovPanel.Hide()
-
-        size = [(width * 91)/100, (height * 15) / 100]
-        position = [(width * 3.5)/100, (height * 75) / 100]
-
-        ###############################################################################
-        self.conclusionPanel = wx.Panel(self.mainPanel, pos=position, size=size)
-        self.conclusionPanel.Hide()
-        ###############################
-        position = [(width * 0.5)/100, (height * 0.5) / 100]
-        self.conclusionLabel = wx.StaticText(self.conclusionPanel, -1, "CONCLUSIÓN: ", pos = position)
-        self.conclusionLabel.SetForegroundColour((255, 255, 255))
-        ###############################
-        size = [(width * 55)/100, (height * 14) / 100]
-        position = [(width * 6.5)/100, (height * 0.5) / 100]
-        self.conclusionText = wx.TextCtrl(self.conclusionPanel, size=size, pos=position)
-        ###############################
-        position = [(width * 63)/100, (height * 0.5) / 100]
-        self.kologorovLabel = wx.StaticText(self.conclusionPanel, -1, "VALOR CRÍTICO: ", pos = position)
-        self.kologorovLabel.SetForegroundColour((255, 255, 255))
-        ###############################
-        size = [(width * 10)/100, (height * 7) / 100]
-        position = [(width * 70)/100, (height * 0.5) / 100]
-        self.kolmogorovVal = wx.TextCtrl(self.conclusionPanel, size=size, pos=position)
         ###############################################################################
 
-        size = [(width * 25)/100, (height * 15) / 100]
-        position = [(width * 3)/100, (height * 5) / 100]
+        #### Conclusion Panel ####
+        self.size = [(width * 91)/100, (height * 10) / 100]
+        self.position = [(width * 3.8)/100, (height * 70) / 100]
+        self.__createConclusionPanel()
+        ###############################################################################
 
-        dataPanel = wx.Panel(self.mainPanel, size=size, pos=position, style = wx.BORDER_DOUBLE)
-        dataPanel.SetBackgroundColour((255, 255, 0))
+        self.__inputsEditable('disabled')
 
-        dataPanelTitle = wx.StaticText(dataPanel, -1, "Valores iniciales")
-        dataPanelTitle.SetForegroundColour((0, 0, 0))
+    def __createDataPanel(self):
+        self.dataPanel = wx.Panel(self.mainPanel, size= self.size, pos= self.position, style = wx.BORDER_DOUBLE)
+        self.dataPanel.SetBackgroundColour(panelBackGround)
+        ###########################################################
+        position = [(width * 3)/100, (height * 15) / 100]
+        self.constraintsBox = wx.StaticText(self.dataPanel,-1, pos = self.position)
+        self.constraintsBox.SetForegroundColour(red)
+        self.constraintsBox.Hide()
+        ###########################################################
+
+        dataPanelTitle = wx.StaticText(self.dataPanel, -1, "Valores iniciales")
+        dataPanelTitle.SetForegroundColour(black)
 
         labels = ["X0", "a", "c", "m", "Periodo (T)"]
         xPos, yPos = 35, 22
 
-        x0Label = wx.StaticText(dataPanel, -1, labels[0], pos=[xPos, yPos])
-        x0Label.SetForegroundColour((0, 0, 0))
+        x0Label = wx.StaticText(self.dataPanel, -1, labels[0], pos=[xPos, yPos])
+        x0Label.SetForegroundColour(black)
 
         xPos += 75
-        aLabel = wx.StaticText(dataPanel, -1, labels[1], pos=[xPos, yPos])
-        aLabel.SetForegroundColour((0, 0, 0))
+        aLabel = wx.StaticText(self.dataPanel, -1, labels[1], pos=[xPos, yPos])
+        aLabel.SetForegroundColour(black)
 
         xPos += 70
-        cLabel = wx.StaticText(dataPanel, -1, labels[2], pos=[xPos, yPos])
-        cLabel.SetForegroundColour((0, 0, 0))
+        cLabel = wx.StaticText(self.dataPanel, -1, labels[2], pos=[xPos, yPos])
+        cLabel.SetForegroundColour(black)
 
         xPos += 65
-        mLabel = wx.StaticText(dataPanel, -1, labels[3], pos=[xPos, yPos])
-        mLabel.SetForegroundColour((0, 0, 0))
+        mLabel = wx.StaticText(self.dataPanel, -1, labels[3], pos=[xPos, yPos])
+        mLabel.SetForegroundColour(black)
 
         xPos = 35
         yPos += 30
 
-        tLabel = wx.StaticText(dataPanel, -1, labels[4], pos=[xPos, yPos])
-        mLabel.SetForegroundColour((0, 0, 0))
+        tLabel = wx.StaticText(self.dataPanel, -1, labels[4], pos=[xPos, yPos])
+        mLabel.SetForegroundColour(black)
 
         size = [50, 20]
 
         xPos, yPos = 50, 22
 
-        self.x0Input = wx.TextCtrl(dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
+        self.x0Input = wx.TextCtrl(self.dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
         xPos += 70
-        self.aInput = wx.TextCtrl(dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
+        self.aInput = wx.TextCtrl(self.dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
         xPos += 70
-        self.cInput = wx.TextCtrl(dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
+        self.cInput = wx.TextCtrl(self.dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
         xPos += 70
-        self.mInput = wx.TextCtrl(dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
+        self.mInput = wx.TextCtrl(self.dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
         xPos = 100
         yPos = 52
-        self.tInput = wx.TextCtrl(dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
+        self.tInput = wx.TextCtrl(self.dataPanel, size=size, style=wx.TE_CENTER, pos=[xPos, yPos])
         self.tInput.SetEditable(False)
 
 
         xPos, yPos = 125, 80
 
-        self.numberGeneratorBtn = wx.Button(dataPanel, -1, label="Generar números aleatorios", pos=[xPos, yPos])
+        self.numberGeneratorBtn = wx.Button(self.dataPanel, -1, label="Generar números aleatorios", pos=[xPos, yPos])
         self.numberGeneratorBtn.Bind(wx.EVT_BUTTON, self.generateRandomNumbers)
         self.numberGeneratorBtn.Disable()
 
         xPos, yPos = 35, 80
-        self.newBtn = wx.Button(dataPanel, -1, label="Nuevo", pos=[xPos, yPos])
+        self.newBtn = wx.Button(self.dataPanel, -1, label="Nuevo", pos=[xPos, yPos])
         self.newBtn.Bind(wx.EVT_BUTTON, self.__deleteWidgets)
 
-        self.__inputsEditable('disabled')
+    def __createRiPanel(self):
+        self.riPanel = wx.Panel(self.mainPanel, pos= self.position, size= self.size, style = wx.BORDER_DOUBLE)
+        self.riPanel.SetBackgroundColour(panelBackGround)
+        self.riPanel.Hide()
 
+    def __createKolmogorovPanel(self):
+        self.kolmogorovPanel = wx.Panel(self.mainPanel, pos= self.position, size= self.size, style = wx.BORDER_DOUBLE)
+        self.kolmogorovPanel.SetBackgroundColour(darkGray)
+        self.kolmogorovPanel.Hide()
+        self.kolmogorovBtn = wx.Button(self.riPanel, -1, label="Aplicar prueba de Kolmogorov-Smirnov", pos=[(width* 48.5)/100, (height* 12) / 100])
+
+    def __createConclusionPanel(self):
+        self.conclusionPanel = wx.Panel(self.mainPanel, pos= self.position, size= self.size, style = wx.BORDER_DOUBLE)
+        self.conclusionPanel.SetBackgroundColour(darkGray)
+        self.conclusionPanel.Hide()
+        ###############################
+        self.position = [(width * 0.5)/100, (height * 0.5) / 100]
+        self.conclusionLabel = wx.StaticText(self.conclusionPanel, -1, "CONCLUSIÓN: ", pos = self.position)
+        self.conclusionLabel.SetForegroundColour(white)
+        ###############################
+        self.size = [(width * 55)/100, (height * 7) / 100]
+        self.position = [(width * 6.5)/100, (height * 0.5) / 100]
+        self.conclusionText = wx.TextCtrl(self.conclusionPanel, size= self.size, pos= self.position)
+        self.conclusionText.SetEditable(False)
+        ###############################
+        self.position = [(width * 63)/100, (height * 0.5) / 100]
+        self.kologorovLabel = wx.StaticText(self.conclusionPanel, -1, "VALOR CRÍTICO: ", pos = self.position)
+        self.kologorovLabel.SetForegroundColour(white)
+        ###############################
+        self.size = [(width * 10)/100, (height * 7) / 100]
+        self.position = [(width * 70)/100, (height * 0.5) / 100]
+        self.kolmogorovVal = wx.TextCtrl(self.conclusionPanel, size= self.size, pos= self.position)
+        self.kolmogorovVal.SetEditable(False)
 
     def generateRandomNumbers(self, e):
-        self.__inputsEditable('disabled')
-        self.numberGeneratorBtn.Disable()
-        self.newBtn.Enable()
-
         x0 = int(self.x0Input.GetLineText(0))
         a = int(self.aInput.GetLineText(0))
         c = int(self.cInput.GetLineText(0))
         m = int(self.mInput.GetLineText(0))
 
         control = Control()
-        result = control.getRandomNumbers(x0, a, c, m)
-        values = result.doubleValues  # Números aleatorios ##
-        period = result.period  # Periodo
-        self.tInput.SetValue(str(period[1] - period[0]))
-        ################################################
-        rows = math.ceil(len(values) / 8)
-        table = Table(self.riPanel, rows, 8, "columns", 29)
+        constraintMessages = []
+        constraintMessages = control.validateData(x0, a, c, m)
+        if(len(constraintMessages) > 0):
+            self.constraintsBox.SetLabelText(constraintMessages)
+            self.constraintsBox.Show()
+        else:
+            self.__inputsEditable('disabled')
+            self.numberGeneratorBtn.Disable()
+            self.newBtn.Enable()
+            self.constraintsBox.Hide()
 
-        row, col = 0, 0
-        for i in range(0, len(values)):
-            if(i >= period[0] and i < period[1]):
-                table.SetCellBackgroundColour(row, col, (125, 65, 255))
-        
-            table.SetCellValue(row, col, "{:.4f}".format(values[i]))
-            if(col == 7):
-                row += 1
-                col = 0
-            else:
-                col += 1
+            result = control.getRandomNumbers(x0, a, c, m)
+            values = result.doubleValues  # Números aleatorios ##
+            period = result.period  # Periodo
+            self.tInput.SetValue(str(period[1] - period[0]))
+            ################################################
+            rows = math.ceil(len(values) / 8)
+            table = Table(self.riPanel, rows, 8, "columns", 29)
 
-        self.kolmogorovBtn.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values))
+            row, col = 0, 0
+            for i in range(0, len(values)):
+                if(i >= period[0] and i < period[1]):
+                    table.SetCellBackgroundColour(row, col, tCellBG)
+            
+                table.SetCellValue(row, col, "{:.4f}".format(values[i]))
+                if(col == 7):
+                    row += 1
+                    col = 0
+                else:
+                    col += 1
 
-        self.__setCellsReadonly(table, rows, 8)
+            self.kolmogorovBtn.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values))
+            self.__setCellsReadonly(table, rows, 8)
 
-        self.riPanel.Validate()
-        self.riPanel.Update()
-        self.riPanel.Show()
+            self.riPanel.Validate()
+            self.riPanel.Update()
+            self.riPanel.Show()
 
     def __deleteWidgets(self, e):
+        self.x0Input.SetFocus()
         self.alpha.Enable()
         self.numberGeneratorBtn.Enable()
         self.kolmogorovBtn.Enable()
@@ -230,7 +267,6 @@ class MainView(wx.Frame):
             self.riPanel.Hide()
             self.conclusionPanel.Hide()
             self.alpha.SetSelection(0)
-            #####################################
             self.__cleanDataInputs()
 
     def __cleanDataInputs(self):
@@ -251,7 +287,6 @@ class MainView(wx.Frame):
             self.aInput.SetEditable(True)
             self.cInput.SetEditable(True)
             self.mInput.SetEditable(True)
-    
 
     def applyKolmogorovSmirnov(self, e, values):
         if(self.alpha.GetSelection()> 0):
@@ -308,7 +343,7 @@ class MainView(wx.Frame):
 
             for i in range(0,np.shape(matrix)[0]):
                 if(matrix[i][np.shape(matrix)[1] - 1] == maxValue):
-                    table.SetCellBackgroundColour(i,np.shape(matrix)[1] + 1, (125,65,22))
+                    table.SetCellBackgroundColour(i,np.shape(matrix)[1] + 1, tCellBG)
 
             ####################################################
             alphaValue = float(self.alpha.GetValue())
@@ -339,7 +374,6 @@ class MainView(wx.Frame):
         for i in range(0, rows):
             for j in range(0, cols):
                 table.SetReadOnly(i,j, True)
-
 
 def runProgram():
     app = wx.App()

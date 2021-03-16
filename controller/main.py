@@ -24,3 +24,18 @@ class Control:
 
     def getKolmogorovTableValue(self, alpha, n):
         return tableValue.getTableValue(alpha,n)
+
+
+    def validateData(self, X0, a, c, m):
+        messages = ''
+        if(X0 <= 0):
+            messages += "El valor de 'X0' debe ser mayor que cero\n"
+        if(a <= 0):
+            messages += "El valor de 'a' debe ser mayor que cero\n"
+        if(c <= 0):
+            messages += "El valor de 'c' debe ser mayor que cero\n"
+        if(m <= 0):
+            messages += "El valor de 'm' debe ser mayor que cero\n"
+
+        return messages
+
