@@ -27,24 +27,4 @@ class MixedCongruentialMethod:
 
     def roundNumbers(self):
         for i, number in enumerate(self.doubleValues):
-<<<<<<< HEAD
             self.doubleValues[i] = round(number,4)
-
-
-mixedCongruentialMethod = MixedCongruentialMethod(4, 5, 7, 8)
-mixedCongruentialMethod.generateNumbers()
-mixedCongruentialMethod.roundNumbers()
-print(mixedCongruentialMethod.doubleValues)
-print(mixedCongruentialMethod.period)
-print('')
-
-start = mixedCongruentialMethod.period[0]
-end = mixedCongruentialMethod.period[1]
-
-print(mixedCongruentialMethod.period)
-print('Periodo -> ', (end - start))
-for i in range(start, end):
-    print(mixedCongruentialMethod.doubleValues[i])
-=======
-            self.doubleValues[i] = round(number,4)
->>>>>>> 54e8d3713d4d306315851b4a695748458382c2b4
