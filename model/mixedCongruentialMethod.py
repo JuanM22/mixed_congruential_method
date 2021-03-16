@@ -29,17 +29,17 @@ class MixedCongruentialMethod:
             self.doubleValues[i] = round(number,4)
 
 
-# mixedCongruentialMethod = MixedCongruentialMethod(X0, a, c, m)
-# mixedCongruentialMethod.generateNumbers()
-# mixedCongruentialMethod.roundNumbers()
-# print(mixedCongruentialMethod.doubleValues)
-# print(mixedCongruentialMethod.period)
-# print('')
+mixedCongruentialMethod = MixedCongruentialMethod(4, 5, 7, 8)
+mixedCongruentialMethod.generateNumbers()
+mixedCongruentialMethod.roundNumbers()
+print(mixedCongruentialMethod.doubleValues)
+print(mixedCongruentialMethod.period)
+print('')
 
-# start = mixedCongruentialMethod.period[0]
-# end = mixedCongruentialMethod.period[1]
+start = mixedCongruentialMethod.period[0]
+end = mixedCongruentialMethod.period[1]
 
-# print(mixedCongruentialMethod.period)
-# print('Periodo -> ', (end - start))
-# for i in range(start, end):
-#     print(mixedCongruentialMethod.doubleValues[i])
+print(mixedCongruentialMethod.period)
+print('Periodo -> ', (end - start))
+for i in range(start, end):
+    print(mixedCongruentialMethod.doubleValues[i])

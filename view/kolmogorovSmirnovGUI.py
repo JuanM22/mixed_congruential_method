@@ -132,9 +132,9 @@ class MyForm(wx.Frame):
         
     
     def applyKolmogorovSmirnov(self, e):
-        if(len(self.kolmogorovPanel.GetChildren()) > 0):
-            table = self.kolmogorovPanel.GetChildren()[0]
-            table.Destroy()
+        # if(len(self.kolmogorovPanel.GetChildren()) > 0):
+        #     table = self.kolmogorovPanel.GetChildren()[0]
+        #     table.Destroy()
 
         control = Control()
         matrix = control.getKolmogorovSmirnovRes(self.values) ## Tabla solución
