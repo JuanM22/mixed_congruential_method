@@ -1,0 +1,8 @@
+mainBG = [255,178,102]
+panelBackGround = [139, 148, 154]
+tableLabelsBG = [0,0,204]
+white = [255,255,255]
+red = [255,0,0]
+darkGray = [64,64,64]
+black = [0,0,0]
+tCellBG = [51,153,255]

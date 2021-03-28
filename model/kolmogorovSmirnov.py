@@ -40,4 +40,4 @@ def __expectedFrequency(table, n, intervals):
 
 def __difference(table):
     for i in range(0, np.shape(table)[0]):
-        table[i][6] = table[i][2] - table[i][5]
+        table[i][6] = round(table[i][2] - table[i][5], 4)
