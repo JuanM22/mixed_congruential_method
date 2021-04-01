@@ -1,1 +1,0 @@
-# mixed_congruential_method

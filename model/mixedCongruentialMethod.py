@@ -17,8 +17,7 @@ class MixedCongruentialMethod:
             if(not(periodFounded)):
                 doubleNumber = (number/self.m)
                 if(doubleNumber in self.doubleValues):
-                    self.period.append(self.doubleValues.index(
-                        doubleNumber))  # Inicio de periodo
+                    self.period.append(self.doubleValues.index(doubleNumber))  # Inicio de periodo
                     self.period.append(i)  # Fin de periodo
                     periodFounded = True
             self.doubleValues.append(number/self.m)
