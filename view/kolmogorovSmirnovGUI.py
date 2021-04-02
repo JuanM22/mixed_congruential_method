@@ -18,6 +18,8 @@ class MainView(wx.Frame):
 
         wx.Frame.__init__(self, parent, title = title, name="riTable", pos=wx.Point(0, 0), size=wx.Size(width, height), style = wx.CAPTION)
 
+        self.labelFont = wx.Font(9, wx.DEFAULT, wx.NORMAL, wx.BOLD)
+
         self.mainPanel = wx.Panel(self)
         self.mainPanel.SetBackgroundColour(colors.mainBG)
 
@@ -44,8 +46,9 @@ class MainView(wx.Frame):
         ##### Alpha ComboBox ####
         self.alpha = AlphaComboBox(self.riPanel, width, height)
         self.position = [(width * 48.5)/100, (height * 5) / 100]
-        self.alphaLabel = wx.StaticText(self.riPanel, -1, "ALPHA: ", pos = self.position)
+        self.alphaLabel = wx.StaticText(self.riPanel, -1, "ALPHA: ", pos = self.position, )
         self.alphaLabel.SetForegroundColour(colors.white)
+        self.alphaLabel.SetFont(self.labelFont)
         self.position = [(width * 53)/100, (height*1.5)/100]
         self.comboSelectionAlert = wx.StaticText(self.riPanel, -1, "Seleccione un valor para alpha", pos = self.position)
         self.comboSelectionAlert.SetForegroundColour(colors.red)
@@ -79,9 +82,10 @@ class MainView(wx.Frame):
         titlePanel = wx.Panel(self.dataPanel, size= self.size, pos= self.position)
         titlePanel.SetBackgroundColour((colors.tableLabelsBG))
 
-        self.position = [(width * 8.5)/100, (height * 0.5) / 100]
+        self.position = [(width * 8.2)/100, (height * 0.5) / 100]
         dataPanelTitle = wx.StaticText(titlePanel, -1, "VALORES INICIALES", pos = self.position)
         dataPanelTitle.SetForegroundColour(colors.white)
+        dataPanelTitle.SetFont(self.labelFont)
 
         labels = ["X0", "a", "c", "m", "Periodo (T)"]
 
@@ -89,26 +93,31 @@ class MainView(wx.Frame):
 
         x0Label = wx.StaticText(self.dataPanel, -1, labels[0], pos= self.position)
         x0Label.SetForegroundColour(colors.black)
-
+        x0Label.SetFont(self.labelFont)
+        
         self.position = [(width * 8.5)/100, (height * 5) / 100]
 
         aLabel = wx.StaticText(self.dataPanel, -1, labels[1], pos= self.position)
         aLabel.SetForegroundColour(colors.black)
+        aLabel.SetFont(self.labelFont)
 
         self.position = [(width * 2.5)/100, (height * 9) / 100]
 
         cLabel = wx.StaticText(self.dataPanel, -1, labels[2], pos= self.position)
         cLabel.SetForegroundColour(colors.black)
+        cLabel.SetFont(self.labelFont)
 
         self.position = [(width * 8)/100, (height * 9) / 100]
 
         mLabel = wx.StaticText(self.dataPanel, -1, labels[3], pos= self.position)
         mLabel.SetForegroundColour(colors.black)
+        mLabel.SetFont(self.labelFont)
 
-        self.position = [(width * 15)/100, (height * 5) / 100]
+        self.position = [(width * 14.5)/100, (height * 5) / 100]
 
         tLabel = wx.StaticText(self.dataPanel, -1, labels[4], pos = self.position)
-        mLabel.SetForegroundColour(colors.black)
+        tLabel.SetForegroundColour(colors.black)
+        tLabel.SetFont(self.labelFont)
         #################################################################################
 
         self.position = [(width * 3.5)/100, (height * 4.5) / 100]
@@ -196,21 +205,23 @@ class MainView(wx.Frame):
         self.conclusionPanel.SetBackgroundColour(colors.darkGray)
         self.conclusionPanel.Hide()
         ###############################
-        self.position = [(width * 0.5)/100, (height * 0.5) / 100]
-        self.conclusionLabel = wx.StaticText(self.conclusionPanel, -1, "CONCLUSIÓN: ", pos = self.position)
-        self.conclusionLabel.SetForegroundColour(colors.white)
+        self.position = [(width * 0.5)/100, (height * 3.3) / 100]
+        conclusionLabel = wx.StaticText(self.conclusionPanel, -1, "CONCLUSIÓN: ", pos = self.position)
+        conclusionLabel.SetForegroundColour(colors.white)
+        conclusionLabel.SetFont(self.labelFont)
         ###############################
         self.size = [(width * 55)/100, (height * 7) / 100]
-        self.position = [(width * 6.5)/100, (height * 0.5) / 100]
+        self.position = [(width * 6.5)/100, (height * 1) / 100]
         self.conclusionText = wx.TextCtrl(self.conclusionPanel, size= self.size, pos= self.position)
         self.conclusionText.SetEditable(False)
         ###############################
-        self.position = [(width * 63)/100, (height * 0.5) / 100]
-        self.kologorovLabel = wx.StaticText(self.conclusionPanel, -1, "VALOR CRÍTICO: ", pos = self.position)
-        self.kologorovLabel.SetForegroundColour(colors.white)
+        self.position = [(width * 63)/100, (height * 3.3) / 100]
+        kologorovLabel = wx.StaticText(self.conclusionPanel, -1, "VALOR CRÍTICO: ", pos = self.position)
+        kologorovLabel.SetForegroundColour(colors.white)
+        kologorovLabel.SetFont(self.labelFont)
         ###############################
         self.size = [(width * 10)/100, (height * 7) / 100]
-        self.position = [(width * 70)/100, (height * 0.5) / 100]
+        self.position = [(width * 70)/100, (height * 1) / 100]
         self.kolmogorovVal = wx.TextCtrl(self.conclusionPanel, size= self.size, pos= self.position)
         self.kolmogorovVal.SetEditable(False)
 
