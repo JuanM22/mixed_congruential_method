@@ -269,7 +269,7 @@ class MainView(wx.Frame):
                         else:
                             col += 1
 
-                    self.kolmogorovBtn.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values))
+                    self.kolmogorovBtn.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values, period))
                     self.riPanel.Validate()
                     self.riPanel.Update()
                     self.riPanel.Show()
@@ -317,7 +317,7 @@ class MainView(wx.Frame):
             self.cInput.SetEditable(True)
             self.mInput.SetEditable(True)
 
-    def applyKolmogorovSmirnov(self, e, values):
+    def applyKolmogorovSmirnov(self, e, values, period):
         if(self.alpha.GetSelection()> 0):
 
             if(len(self.kolmogorovDPos) > 0):
@@ -328,6 +328,8 @@ class MainView(wx.Frame):
             self.comboSelectionAlert.Hide()
 
             control = Control()
+            values = values[period[0]:period[1]]
+            print(values)
             matrix = control.getKolmogorovSmirnovRes(values)  # Tabla solución
 
             roundedColPositions = [0,1]
