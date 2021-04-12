@@ -253,7 +253,6 @@ class MainView(wx.Frame):
                     result = control.getRandomNumbers(x0, a, c, m)
                     period = result.period  # Periodo
                     values = result.doubleValues[period[0]:period[1]]  # Números aleatorios ##
-                    print(values)
                     self.tInput.SetValue(str(period[1] - period[0]))
                     ################################################
                     rows = math.ceil(len(values) / 8)
