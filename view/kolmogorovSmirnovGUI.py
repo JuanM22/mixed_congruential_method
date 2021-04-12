@@ -319,57 +319,58 @@ class MainView(wx.Frame):
 
     def applyKolmogorovSmirnov(self, e, values):
         if(self.alpha.GetSelection()> 0):
-            print(self.kolmogorovDPos)
+
             if(len(self.kolmogorovDPos) > 0):
                 self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0], self.kolmogorovDPos[1], colors.darkGray)
 
-                self.alpha.Disable()
-                self.kolmogorovBtn.Disable()
-                self.comboSelectionAlert.Hide()
+            self.alpha.Disable()
+            self.kolmogorovBtn.Disable()
+            self.comboSelectionAlert.Hide()
 
-                control = Control()
-                matrix = control.getKolmogorovSmirnovRes(values)  # Tabla solución
+            control = Control()
+            matrix = control.getKolmogorovSmirnovRes(values)  # Tabla solución
 
-                roundedColPositions = [0,1]
-                formater = ""
-                ############# SETTING DATA ############
-                for i in range(0, np.shape(matrix)[0]):
-                    for j in range(0, np.shape(matrix)[1]):
-                        if(j in roundedColPositions):
-                            formater = "{:.0f}"
-                        else:
-                            formater = "{:.4f}"
-                        self.kolmogorovTable.SetCellValue(i, j + 2, formater.format(matrix[i][j]))
-                
-                ####################################################
-                maxValue = control.getDifferenceMaxValue(matrix)
-                maxValuePos = self.__getMaxValuePos(matrix, maxValue)
-                self.kolmogorovDPos = [maxValuePos, self.kolmogorovTable.GetNumberCols()-1]
-                self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0],self.kolmogorovDPos[1], colors.tCellBG)
-                ####################################################
-                alphaValue = float(self.alpha.GetValue())
+            roundedColPositions = [0,1]
+            formater = ""
+            ############# SETTING DATA ############
+            for i in range(0, np.shape(matrix)[0]):
+                for j in range(0, np.shape(matrix)[1]):
+                    if(j in roundedColPositions):
+                        formater = "{:.0f}"
+                    else:
+                        formater = "{:.4f}"
+                    self.kolmogorovTable.SetCellValue(i, j + 2, formater.format(matrix[i][j]))
+            
+            ####################################################
+            maxValue = control.getDifferenceMaxValue(matrix)
+            maxValuePos = self.__getMaxValuePos(matrix, maxValue)
+            self.kolmogorovDPos = [maxValuePos, self.kolmogorovTable.GetNumberCols()-1]
+            self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0],self.kolmogorovDPos[1], colors.tCellBG)
+            ####################################################
+            alphaValue = float(self.alpha.GetValue())
 
-                kolmogorovValue = control.getKolmogorovTableValue(alphaValue, len(values))
-                self.kolmogorovVal.SetValue(str(kolmogorovValue))
+            kolmogorovValue = control.getKolmogorovTableValue(alphaValue, len(values))
+            self.kolmogorovVal.SetValue(str(kolmogorovValue))
 
-                conclusion = 'Como el valor crítico es menor que el valor de D, se concluye que los' 
-                conclusion += ' números del conjunto ri no siguen una distribución uniforme'
-                if(maxValue < kolmogorovValue):
-                    conclusion = 'Como el valor crítico es mayor que el valor de D, se concluye que los' 
-                    conclusion += ' números del conjunto ri siguen una distribución uniforme'
+            conclusion = 'Como el valor crítico es menor que el valor de D, se concluye que los' 
+            conclusion += ' números del conjunto ri no siguen una distribución uniforme'
+            if(maxValue < kolmogorovValue):
+                conclusion = 'Como el valor crítico es mayor que el valor de D, se concluye que los' 
+                conclusion += ' números del conjunto ri siguen una distribución uniforme'
 
-                self.conclusionText.SetValue(conclusion)
-                self.conclusionPanel.Validate()
-                self.conclusionPanel.Update()
-                self.conclusionPanel.Show()
-                ####################################################
-                self.kolmogorovPanel.Validate()
-                self.kolmogorovPanel.Update()
-                self.kolmogorovPanel.Show()
-        
+            self.conclusionText.SetValue(conclusion)
+            self.conclusionPanel.Validate()
+            self.conclusionPanel.Update()
+            self.conclusionPanel.Show()
+            ####################################################
+            self.kolmogorovPanel.Validate()
+            self.kolmogorovPanel.Update()
+            self.kolmogorovPanel.Show()
+    
         else:
             self.alpha.Popup()
             self.comboSelectionAlert.Show()
+
 
     def __getMaxValuePos(self, matrix, maxValue):
         for i in range(0,np.shape(matrix)[0]):
