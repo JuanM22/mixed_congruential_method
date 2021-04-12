@@ -329,7 +329,6 @@ class MainView(wx.Frame):
 
             control = Control()
             values = values[period[0]:period[1]]
-            print(values)
             matrix = control.getKolmogorovSmirnovRes(values)  # Tabla solución
 
             roundedColPositions = [0,1]
