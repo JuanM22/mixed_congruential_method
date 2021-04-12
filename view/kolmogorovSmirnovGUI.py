@@ -251,8 +251,9 @@ class MainView(wx.Frame):
                     self.constraintsBox.Hide()
 
                     result = control.getRandomNumbers(x0, a, c, m)
-                    values = result.doubleValues  # Números aleatorios ##
                     period = result.period  # Periodo
+                    values = result.doubleValues[period[0]:period[1]]  # Números aleatorios ##
+                    print(values)
                     self.tInput.SetValue(str(period[1] - period[0]))
                     ################################################
                     rows = math.ceil(len(values) / 8)
@@ -381,5 +382,5 @@ class MainView(wx.Frame):
 
 def runProgram():
     app = wx.App()
-    frame = MainView(None, 'Congruential Mixed Method | Kolmogorov-Smirnov Test').Show()
+    frame = MainView(None, 'Congruential Mixed Method | Kolmogorov-Smirnov Test asda').Show()
     app.MainLoop()
