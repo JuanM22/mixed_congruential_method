@@ -11,7 +11,6 @@ class Control:
     def getRandomNumbers(self, x0, a, c, m):
         mixedCongruentialMethod = MixedCongruentialMethod(x0,a,c,m)
         mixedCongruentialMethod.generateNumbers()
-        mixedCongruentialMethod.roundNumbers()
         return mixedCongruentialMethod
         
     def getKolmogorovSmirnovRes(self, values):

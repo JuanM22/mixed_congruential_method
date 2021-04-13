@@ -46,13 +46,13 @@ class MainView(wx.Frame):
         ##### Alpha ComboBox ####
         self.alpha = AlphaComboBox(self.riPanel, width, height)
         self.position = [(width * 48.5)/100, (height * 5) / 100]
-        self.alphaLabel = wx.StaticText(self.riPanel, -1, "ALPHA: ", pos = self.position, )
+        self.alphaLabel = wx.StaticText(self.riPanel, -1, "ALPHA: ", pos = self.position)
         self.alphaLabel.SetForegroundColour(colors.white)
         self.alphaLabel.SetFont(self.labelFont)
         self.position = [(width * 53)/100, (height*1.5)/100]
-        self.comboSelectionAlert = wx.StaticText(self.riPanel, -1, "Seleccione un valor para alpha", pos = self.position)
-        self.comboSelectionAlert.SetForegroundColour(colors.red)
-        self.comboSelectionAlert.Hide()
+        self.riSelectionAlert = wx.StaticText(self.riPanel, -1, pos = self.position)
+        self.riSelectionAlert.SetForegroundColour(colors.red)
+        self.riSelectionAlert.Hide()
         ###############################################################################
 
         #### Conclusion Panel ####
@@ -167,13 +167,24 @@ class MainView(wx.Frame):
     def __createRiPanel(self):
         self.riPanel = wx.Panel(self.mainPanel, pos= self.position, size= self.size, style = wx.BORDER_DOUBLE)
         self.riPanel.SetBackgroundColour(colors.panelBackGround)
+        #########################################
+        self.position = [(width* 50.8)/100, (height* 10) / 100]
+        nLabel = wx.StaticText(self.riPanel, -1, 'n: ',pos = self.position)
+        nLabel.SetForegroundColour(colors.white)
+        nLabel.SetFont(self.labelFont)
+        #########################################
+        self.position = [(width* 53)/100, (height * 9.5) / 100]
+        self.nInput = wx.TextCtrl(self.riPanel, size=[(width * 4)/100, (height * 3) / 100], style=wx.TE_CENTER, pos= self.position)
+        self.nInput.Bind(wx.EVT_CHAR, self.__onlyNumbers)
+        #########################################
+        self.position = [(width* 48.5)/100, (height* 15) / 100]
+        self.kolmogorovBtn = wx.Button(self.riPanel, -1, label="Aplicar prueba de Kolmogorov-Smirnov", pos= self.position)
         self.riPanel.Hide()
 
     def __createKolmogorovPanel(self):
         self.kolmogorovPanel = wx.Panel(self.mainPanel, pos= self.position, size= self.size, style = wx.BORDER_DOUBLE)
         self.kolmogorovPanel.SetBackgroundColour(colors.darkGray)
-        self.kolmogorovPanel.Hide()
-        self.kolmogorovBtn = wx.Button(self.riPanel, -1, label="Aplicar prueba de Kolmogorov-Smirnov", pos=[(width* 48.5)/100, (height* 12) / 100])
+        self.kolmogorovPanel.Hide()        
 
     def __createKolmogorovTable(self):
         self.kolmogorovTable = Table(self.kolmogorovPanel, 10, 9, "", 33.5, width, height)
@@ -236,7 +247,7 @@ class MainView(wx.Frame):
             c = int(self.cInput.GetValue())
             m = int(self.mInput.GetValue())
 
-            if(m <= 1500000):
+            if(m <= 2500000):
 
                 control = Control()
                 constraintMessages = []
@@ -258,8 +269,11 @@ class MainView(wx.Frame):
                     rows = math.ceil(len(values) / 8)
                     table = Table(self.riPanel, rows, 8, "columns", 29, width, height)
                     row, col = 0, 0
+                    focusIndex = 0
                     for i in range(0, len(values)):
                         if(i >= period[0] and i < period[1]):
+                            if(values[i] == values[period[0]] and focusIndex==0):
+                                focusIndex = row
                             table.SetCellBackgroundColour(row, col, colors.tCellBG)
                     
                         table.SetCellValue(row, col, "{:.4f}".format(values[i]))
@@ -269,12 +283,13 @@ class MainView(wx.Frame):
                         else:
                             col += 1
 
+                    table.GoToCell(focusIndex,0)
                     self.kolmogorovBtn.Bind(wx.EVT_BUTTON, lambda event: self.applyKolmogorovSmirnov(e, values, period))
                     self.riPanel.Validate()
                     self.riPanel.Update()
                     self.riPanel.Show()
             else:
-                self.constraintsBox.SetLabelText('El valor de m no puede ser superior a\n1.5 millones (1500000) !!!')
+                self.constraintsBox.SetLabelText('El valor de m no puede ser superior a\n2.5 millones (2500000) !!!')
                 self.constraintsBox.Show()    
         else:
             self.constraintsBox.SetLabelText('¡Error! Alguno de los campos esta vacío...')
@@ -287,12 +302,13 @@ class MainView(wx.Frame):
         self.kolmogorovBtn.Enable()
         self.newBtn.Disable()
         self.__inputsEditable('enabled')
+        self.riSelectionAlert.Hide()
 
         if(self.kolmogorovPanel.IsShown()):
             self.kolmogorovPanel.Hide()
 
-        if(len(self.riPanel.GetChildren()) > 4):
-            self.riPanel.GetChildren()[4].Destroy()
+        if(len(self.riPanel.GetChildren()) > 6):
+            self.riPanel.GetChildren()[6].Destroy()
             self.riPanel.Hide()
             self.conclusionPanel.Hide()
             self.alpha.SetSelection(0)
@@ -304,6 +320,7 @@ class MainView(wx.Frame):
         self.cInput.SetValue('')
         self.tInput.SetValue('')
         self.mInput.SetValue('')
+        self.nInput.SetValue('')
 
     def __inputsEditable(self, option):
         if(option == 'disabled'):
@@ -311,67 +328,76 @@ class MainView(wx.Frame):
             self.aInput.SetEditable(False)
             self.cInput.SetEditable(False)
             self.mInput.SetEditable(False)
+            self.nInput.SetEditable(True)
         else:
             self.x0Input.SetEditable(True)
             self.aInput.SetEditable(True)
             self.cInput.SetEditable(True)
             self.mInput.SetEditable(True)
+            self.nInput.SetEditable(False)
 
     def applyKolmogorovSmirnov(self, e, values, period):
-        if(self.alpha.GetSelection()> 0):
+        empty = ['',' ']
+        n = int(self.nInput.GetValue()) if (not(self.nInput.GetValue() in empty)) else 0
+        if(n <= len(values)):
+            if(self.alpha.GetSelection()> 0):
 
-            if(len(self.kolmogorovDPos) > 0):
-                self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0], self.kolmogorovDPos[1], colors.darkGray)
+                if(len(self.kolmogorovDPos) > 0):
+                    self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0], self.kolmogorovDPos[1], colors.darkGray)
 
-            self.alpha.Disable()
-            self.kolmogorovBtn.Disable()
-            self.comboSelectionAlert.Hide()
+                self.nInput.SetEditable(False)
+                self.alpha.Disable()
+                self.kolmogorovBtn.Disable()
+                self.riSelectionAlert.Hide()
 
-            control = Control()
-            values = values[period[0]:period[1]]
-            matrix = control.getKolmogorovSmirnovRes(values)  # Tabla solución
+                control = Control()
+                values = values[period[0]:period[1]] if(n == 0) else values[period[0]: (period[0] + n)]
+                matrix = control.getKolmogorovSmirnovRes(values)  # Tabla solución
 
-            roundedColPositions = [0,1]
-            formater = ""
-            ############# SETTING DATA ############
-            for i in range(0, np.shape(matrix)[0]):
-                for j in range(0, np.shape(matrix)[1]):
-                    if(j in roundedColPositions):
-                        formater = "{:.0f}"
-                    else:
-                        formater = "{:.4f}"
-                    self.kolmogorovTable.SetCellValue(i, j + 2, formater.format(matrix[i][j]))
-            
-            ####################################################
-            maxValue = control.getDifferenceMaxValue(matrix)
-            maxValuePos = self.__getMaxValuePos(matrix, maxValue)
-            self.kolmogorovDPos = [maxValuePos, self.kolmogorovTable.GetNumberCols()-1]
-            self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0],self.kolmogorovDPos[1], colors.tCellBG)
-            ####################################################
-            alphaValue = float(self.alpha.GetValue())
+                roundedColPositions = [0,1]
+                formater = ""
+                ############# SETTING DATA ############
+                for i in range(0, np.shape(matrix)[0]):
+                    for j in range(0, np.shape(matrix)[1]):
+                        if(j in roundedColPositions):
+                            formater = "{:.0f}"
+                        else:
+                            formater = "{:.4f}"
+                        self.kolmogorovTable.SetCellValue(i, j + 2, formater.format(matrix[i][j]))
+                
+                ####################################################
+                maxValue = control.getDifferenceMaxValue(matrix)
+                maxValuePos = self.__getMaxValuePos(matrix, maxValue)
+                self.kolmogorovDPos = [maxValuePos, self.kolmogorovTable.GetNumberCols()-1]
+                self.kolmogorovTable.SetCellBackgroundColour(self.kolmogorovDPos[0],self.kolmogorovDPos[1], colors.tCellBG)
+                ####################################################
+                alphaValue = float(self.alpha.GetValue())
 
-            kolmogorovValue = control.getKolmogorovTableValue(alphaValue, len(values))
-            self.kolmogorovVal.SetValue(str(kolmogorovValue))
+                kolmogorovValue = control.getKolmogorovTableValue(alphaValue, len(values))
+                self.kolmogorovVal.SetValue(str(kolmogorovValue))
 
-            conclusion = 'Como el valor crítico es menor que el valor de D, se concluye que los' 
-            conclusion += ' números del conjunto ri no siguen una distribución uniforme'
-            if(maxValue < kolmogorovValue):
-                conclusion = 'Como el valor crítico es mayor que el valor de D, se concluye que los' 
-                conclusion += ' números del conjunto ri siguen una distribución uniforme'
+                conclusion = 'Como el valor crítico es menor que el valor de D, se concluye que los' 
+                conclusion += ' números del conjunto ri no siguen una distribución uniforme'
+                if(maxValue < kolmogorovValue):
+                    conclusion = 'Como el valor crítico es mayor que el valor de D, se concluye que los' 
+                    conclusion += ' números del conjunto ri siguen una distribución uniforme'
 
-            self.conclusionText.SetValue(conclusion)
-            self.conclusionPanel.Validate()
-            self.conclusionPanel.Update()
-            self.conclusionPanel.Show()
-            ####################################################
-            self.kolmogorovPanel.Validate()
-            self.kolmogorovPanel.Update()
-            self.kolmogorovPanel.Show()
-    
+                self.conclusionText.SetValue(conclusion)
+                self.conclusionPanel.Validate()
+                self.conclusionPanel.Update()
+                self.conclusionPanel.Show()
+                ####################################################
+                self.kolmogorovPanel.Validate()
+                self.kolmogorovPanel.Update()
+                self.kolmogorovPanel.Show()
+        
+            else:
+                self.alpha.Popup()
+                self.riSelectionAlert.SetLabel("Seleccione un valor para alpha")
+                self.riSelectionAlert.Show()
         else:
-            self.alpha.Popup()
-            self.comboSelectionAlert.Show()
-
+            self.riSelectionAlert.SetLabel("n debe ser menor o igual que m")
+            self.riSelectionAlert.Show()
 
     def __getMaxValuePos(self, matrix, maxValue):
         for i in range(0,np.shape(matrix)[0]):

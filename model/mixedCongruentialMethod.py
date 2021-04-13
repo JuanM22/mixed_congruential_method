@@ -14,16 +14,12 @@ class MixedCongruentialMethod:
         periodFounded = False
         for i in range(0, self.m + 1):
             number = ((self.a * self.Xn) + self.c) % self.m
+            doubleNumber = round((number/self.m),4)
             if(not(periodFounded)):
-                doubleNumber = (number/self.m)
                 if(doubleNumber in self.doubleValues):
                     self.period.append(self.doubleValues.index(doubleNumber))  # Inicio de periodo
                     self.period.append(i)  # Fin de periodo
                     periodFounded = True
-            self.doubleValues.append(number/self.m)
+            self.doubleValues.append(doubleNumber)
             self.Xn = number
         self.doubleValues.pop()
-
-    def roundNumbers(self):
-        for i, number in enumerate(self.doubleValues):
-            self.doubleValues[i] = round(number,4)
