@@ -148,15 +148,13 @@ class MainView(wx.Frame):
 
         ##################################################################################
         self.position = [(width * 3)/100, (height * 13) / 100]
-
         self.newBtn = wx.Button(self.dataPanel, -1, label="Nuevo", pos= self.position)
         self.newBtn.Bind(wx.EVT_BUTTON, self.__deleteWidgets)
-
         self.position = [(width * 10)/100, (height * 13) / 100]
-
         self.numberGeneratorBtn = wx.Button(self.dataPanel, -1, label="Generar números aleatorios", pos= self.position)
         self.numberGeneratorBtn.Bind(wx.EVT_BUTTON, self.generateRandomNumbers)
         self.numberGeneratorBtn.Disable()
+        ##################################################################################
 
     def __onlyNumbers(self, e):
         key_code = e.GetKeyCode()
