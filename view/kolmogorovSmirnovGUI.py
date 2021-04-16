@@ -260,7 +260,7 @@ class MainView(wx.Frame):
                     self.constraintsBox.Hide()
 
                     result = control.getRandomNumbers(x0, a, c, m)
-                    values = result.doubleValues  # Números aleatorios ##
+                    values = list(result.doubleValues)  # Números aleatorios ##
                     period = result.period  # Periodo
                     self.tInput.SetValue(str(period[1] - period[0]))
                     ################################################
@@ -269,10 +269,8 @@ class MainView(wx.Frame):
                     row, col = 0, 0
                     focusIndex = 0
                     for i in range(0, len(values)):
-                        if(i >= period[0] and i < period[1]):
-                            if(values[i] == values[period[0]] and focusIndex==0):
-                                focusIndex = row
-                            table.SetCellBackgroundColour(row, col, colors.tCellBG)
+                        if(values[i] == values[period[0]] and focusIndex==0):
+                            focusIndex = row
                     
                         table.SetCellValue(row, col, "{:.4f}".format(values[i]))
                         if(col == 7):
