@@ -269,6 +269,7 @@ class MainView(wx.Frame):
                     row, col = 0, 0
                     focusIndex = 0
                     for i in range(0, len(values)):
+
                         if(values[i] == values[period[0]] and focusIndex==0):
                             focusIndex = row
                     
